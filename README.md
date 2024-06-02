@@ -37,53 +37,6 @@ ansible-galaxy install ansibleguy.infra_pki --roles-path ./roles
 ansible-galaxy install -r requirements.yml
 ```
 
-## Functionality
-
-* **Package installation**
-  * OpenSSL
-
-
-* **Configuration**
-  * Usage of a group to allow read-only access to public-keys
-
-
-  * **Default config**:
-    * Paths:
-      * PKI base: '/var/local/lib/pki'
-      * Script: '/usr/local/sbin/easyrsa'
-    * PKI user: 'pki'
-    * Read-only group: 'pki_read'
-    * **EasyRSA vars**:
-      * Expiration:
-        * Root-CA: 20 years
-        * Sub-CA: 15 years
-        * Certificates: 3 years
-      * Digest:
-        * Root-CA: sha512
-        * Sub-CA/Certificates: sha256
-      * Algorithm: rsa
-      * Key size: 4096
-    * Certificates:
-      * Don't password-encrypt certificate private-keys
-      * Export formats:
-        * pkcs12 (_private/<cert>.p12_)
-        * certificate chain (_issued/<cert>.chain.crt_)
- 
-
-  * **Default opt-ins**:
-    * Adding dedicated PKI-user and read-only group
-    * Saving CA/Sub-CA/Certificate passwords to files for easier automation
-      * See the information below for alternatives
-    * Installation and configuration of a Nginx webserver to server CRL's and CA-PublicKey's (_not yet implemented_)
-
-
-  * **Default opt-outs**:
-    * Purging of orphaned (_existing but not configured_) certificates
-    * Encryption of certificate private-keys (_non CA/Sub-CA_)
-
-
-----
-
 ## Usage
 
 You want a simple Ansible GUI? Check-out my [Ansible WebUI](https://github.com/ansibleguy/webui)
@@ -164,6 +117,52 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 ```
 
 Note: `--check` mode is not supported by this role as it heavily depends on scripted command-tasks.
+
+----
+
+## Functionality
+
+* **Package installation**
+  * OpenSSL
+
+
+* **Configuration**
+  * Usage of a group to allow read-only access to public-keys
+
+
+  * **Default config**:
+    * Paths:
+      * PKI base: '/var/local/lib/pki'
+      * Script: '/usr/local/sbin/easyrsa'
+    * PKI user: 'pki'
+    * Read-only group: 'pki_read'
+    * **EasyRSA vars**:
+      * Expiration:
+        * Root-CA: 20 years
+        * Sub-CA: 15 years
+        * Certificates: 3 years
+      * Digest:
+        * Root-CA: sha512
+        * Sub-CA/Certificates: sha256
+      * Algorithm: rsa
+      * Key size: 4096
+    * Certificates:
+      * Don't password-encrypt certificate private-keys
+      * Export formats:
+        * pkcs12 (_private/<cert>.p12_)
+        * certificate chain (_issued/<cert>.chain.crt_)
+ 
+
+  * **Default opt-ins**:
+    * Adding dedicated PKI-user and read-only group
+    * Saving CA/Sub-CA/Certificate passwords to files for easier automation
+      * See the information below for alternatives
+    * Installation and configuration of a Nginx webserver to server CRL's and CA-PublicKey's (_not yet implemented_)
+
+
+  * **Default opt-outs**:
+    * Purging of orphaned (_existing but not configured_) certificates
+    * Encryption of certificate private-keys (_non CA/Sub-CA_)
 
 ----
 
