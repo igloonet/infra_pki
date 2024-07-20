@@ -11,7 +11,7 @@
 - name: "{{ task_prefix_cert }} | '{{ pki_cert_name }}' | Checking certificate config"
   ansible.builtin.assert:
     that:
-      - pki_cert_pwd | meets_password_complexity(PKI_HC)
+      - pki_cert_pwd | default(none, true) is none or pki_cert_pwd | meets_password_complexity(PKI_HC)
       - pki_cert_cnf.req.country | default('', true) | length < 3
   vars:
     pki_cert_pwd: "{{ pki_cert_cnf.pwd | default(pki_cnf_subca.pwd_cert) | default('') }}"
