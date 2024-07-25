@@ -105,11 +105,8 @@ else
     # check cert password
     if [ -z "$PKI_PWD_CERT" ]
     then
-      if ! [ -f "$PWD_FILE_CERT" ]
+      if [ -f "$PWD_FILE_CERT" ]
       then
-        echo "ERROR: Certificate-Password was neither provided as environmental-variable (PKI_PWD_CERT), nor could its password file '${PWD_FILE_CERT}' be found!"
-        exit 1
-      else
         PKI_PWD_CERT=$(cat "$PWD_FILE_CERT")
         if [ -z "$PWD_FILE_CERT" ]
         then
@@ -194,7 +191,11 @@ then
   then
     echo 'Creating certificate'
     CHANGED=1
-    pki_script "gen-req ${CERT_FILE_NAME}" '' "$PKI_PWD_CERT"
+    if [ -z "$PKI_PWD_CERT" ]; then
+      pki_script "gen-req ${CERT_FILE_NAME}" 'nopass'
+    else
+      pki_script "gen-req ${CERT_FILE_NAME}" '' "$PKI_PWD_CERT"
+    fi
     echo 'Signing certificate'
     if [ -z "$PKI_CERT_SAN" ]
     then
@@ -217,7 +218,11 @@ then
         echo 'Exporting unencrypted key'
         # shellcheck disable=SC2002
         pki_algo=$(cat "${PKI_VARS}" | grep 'EASYRSA_ALGO' | cut -d ' ' -f 3)
-        openssl "$pki_algo" --passin="pass:${PKI_PWD_CERT}" -in "${PKI_PATH_PRIVATE}/${CERT_FILE_NAME}.key" -out "${PKI_PATH_PRIVATE}/${CERT_FILE_NAME}.unencrypted.key"
+        if [ -z "$PKI_PWD_CERT" ]; then
+          openssl "$pki_algo" -in "${PKI_PATH_PRIVATE}/${CERT_FILE_NAME}.key" -out "${PKI_PATH_PRIVATE}/${CERT_FILE_NAME}.unencrypted.key"
+        else
+          openssl "$pki_algo" --passin="pass:${PKI_PWD_CERT}" -in "${PKI_PATH_PRIVATE}/${CERT_FILE_NAME}.key" -out "${PKI_PATH_PRIVATE}/${CERT_FILE_NAME}.unencrypted.key"
+        fi
       fi
       for pn in "${PKCS_FORMATS[@]}"
       do
